@@ -1,3 +1,3 @@
-module github.com/tomyfalgui/gol-go
+module github.com/tomyfalgui/game-of-life-go
 
 go 1.19

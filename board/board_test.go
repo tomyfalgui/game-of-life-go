@@ -3,7 +3,7 @@ package board_test
 import (
 	"testing"
 
-	board "github.com/tomyfalgui/gol-go/board"
+	board "github.com/tomyfalgui/game-of-life-go/board"
 )
 
 func TestGenerateXYGridState(t *testing.T) {
