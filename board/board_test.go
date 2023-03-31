@@ -30,16 +30,24 @@ func TestGenerateXYGridState(t *testing.T) {
 func TestRenderGrid(t *testing.T) {
 	t.Parallel()
 
-	board := [][]int{
+	testBoard := [][]int{
 		{0, 1, 0, 0, 1},
 		{0, 0, 0, 0, 1},
 		{0, 1, 1, 1, 0},
 	}
 
-	want := " #   #\n    #\n ### \n"
-	got := board.Render(board)
+	want := " #  #\n    #\n ### \n"
+	got := board.Render(testBoard)
 
 	if want != got {
 		t.Errorf("want %v vs got %v", want, got)
 	}
 }
+
+// behaviors
+/**
+Any live cell with 0 or 1 live neighbors becomes dead, because of underpopulation
+Any live cell with 2 or 3 live neighbors stays alive, because its neighborhood is just right
+Any live cell with more than 3 live neighbors becomes dead, because of overpopulation
+Any dead cell with exactly 3 live neighbors becomes alive, by reproduction
+*/

@@ -23,6 +23,16 @@ func Render(grid [][]int) string {
 
 	for _, y := range grid {
 		for _, x := range y {
+			if x == 0 {
+				sb.WriteString(" ")
+			}
+
+			if x == 1 {
+				sb.WriteString("#")
+			}
 		}
+		sb.WriteString("\n")
 	}
+
+	return sb.String()
 }
