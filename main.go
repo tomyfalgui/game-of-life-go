@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/tomyfalgui/game-of-life-go/board"
 )
 
@@ -17,12 +17,12 @@ type model struct {
 }
 
 func initialModel() model {
-	newBoard, err := board.GenerateRandom(150, 80)
-	if err != nil {
-		log.Fatal("could not generate board")
-	}
+	// newBoard, err := board.GenerateRandom(150, 80)
+	// if err != nil {
+	// 	log.Fatal("could not generate board")
+	// }
 	return model{
-		grid: newBoard
+		grid: GosperGlider(),
 	}
 }
 
@@ -53,14 +53,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	// The header
 	s := "Conway's Game of Life\n\n"
-
 	// Iterate over our choices
 	for _, y := range m.grid {
 		for _, cell := range y {
 			if cell == 0 {
 				s += " "
 			} else {
-				s += "#"
+				c := lipgloss.NewStyle().SetString(" ").Background(lipgloss.Color("#FF7B9C"))
+				s += c.String()
 			}
 		}
 		s += "\n"
