@@ -1,11 +1,15 @@
 package board
 
 import (
+	"errors"
 	"math/rand"
 	"strings"
 )
 
-func GenerateRandom(width, height int) [][]int {
+func GenerateRandom(width, height int) ([][]int, error) {
+	if width < 3 || height < 3 {
+		return [][]int{}, errors.New("Grid should at least be 3x3")
+	}
 	grid := [][]int{}
 
 	for y := 0; y < height; y++ {
@@ -15,7 +19,7 @@ func GenerateRandom(width, height int) [][]int {
 		}
 		grid = append(grid, wSlice)
 	}
-	return grid
+	return grid, nil
 }
 
 func Render(grid [][]int) string {
@@ -37,12 +41,46 @@ func Render(grid [][]int) string {
 	return sb.String()
 }
 
+// behaviors
+/**
+1. Any live cell with 0 or 1 live neighbors becomes dead, because of underpopulation
+Any live cell with 2 or 3 live neighbors stays alive, because its neighborhood is just right
+Any live cell with more than 3 live neighbors becomes dead, because of overpopulation
+Any dead cell with exactly 3 live neighbors becomes alive, by reproduction
+*/
 func NextState(grid [][]int) [][]int {
-	// yDimMax := len(grid)
-	// xDimMax := len(grid[0])
-	// nextState := [][]int{}
+	nextState := make([][]int, len(grid))
+	maxY := len(grid)
+	for iy, y := range grid {
+		maxX := len(y)
+		nextState[iy] = make([]int, len(grid[iy]))
+		for ix, cell := range y {
+			nIndices := NeighborIndices(ix, iy, maxX, maxY)
+			deadCount := 0
+			liveCount := 0
+			for _, nIdx := range nIndices {
+				yNeighbor := nIdx[0]
+				xNeighbor := nIdx[1]
 
-	return grid
+				if grid[yNeighbor][xNeighbor] == 0 {
+					deadCount++
+				} else {
+					liveCount++
+				}
+			}
+
+			if cell == 1 && (liveCount == 2 || liveCount == 3) {
+				nextState[iy][ix] = 1
+			} else if cell == 0 && (liveCount == 3) {
+				nextState[iy][ix] = 1
+			} else {
+				nextState[iy][ix] = 0
+			}
+		}
+
+	}
+
+	return nextState
 }
 
 /*

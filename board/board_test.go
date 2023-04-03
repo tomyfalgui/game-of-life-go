@@ -12,8 +12,11 @@ func TestGenerateXYGridState(t *testing.T) {
 	t.Parallel()
 
 	wantWidth := 5
-	wantHeight := 2
-	newBoard := board.GenerateRandom(wantWidth, wantHeight)
+	wantHeight := 3
+	newBoard, err := board.GenerateRandom(wantWidth, wantHeight)
+	if err != nil {
+		t.Errorf("board should not have thrown an error")
+	}
 
 	gotHeight := len(newBoard)
 
@@ -26,6 +29,15 @@ func TestGenerateXYGridState(t *testing.T) {
 		if gotWidth != wantWidth {
 			t.Errorf("grid width is unmatched. want %d vs got %d", wantWidth, gotWidth)
 		}
+	}
+}
+
+func TestGenerateInvalidXYGrid(t *testing.T) {
+	t.Parallel()
+
+	_, err := board.GenerateRandom(2, 1)
+	if err == nil {
+		t.Errorf("grid should not have been created")
 	}
 }
 
@@ -56,34 +68,26 @@ func TestGetNeighborIndices_XYPair(t *testing.T) {
 
 	// in (Y, X) form
 	wantNeighborIndices1 := [][]int{
-		{0, 1},
-		{1, 0},
-		{1, 1},
 		{9, 4},
 		{9, 0},
 		{9, 1},
 		{0, 4},
+		{0, 1},
 		{1, 4},
+		{1, 0},
+		{1, 1},
 	}
 	gotNeigborIndices1 := board.NeighborIndices(currXIndex1, currYIndex1, maxX, maxY)
 	if !cmp.Equal(
 		wantNeighborIndices1,
 		gotNeigborIndices1,
 		cmpopts.SortSlices(func(x, y [][]int) bool {
-			return x[0][0] == y[0][0]
+			return x[0][1] < y[0][0]
 		}),
 	) {
 		t.Errorf("diff NeighborIndices1: %v", cmp.Diff(wantNeighborIndices1, gotNeigborIndices1))
 	}
 }
-
-// behaviors
-/**
-1. Any live cell with 0 or 1 live neighbors becomes dead, because of underpopulation
-Any live cell with 2 or 3 live neighbors stays alive, because its neighborhood is just right
-Any live cell with more than 3 live neighbors becomes dead, because of overpopulation
-Any dead cell with exactly 3 live neighbors becomes alive, by reproduction
-*/
 
 func TestNextStateCells_WithZeroOrOneLiveNeighbors_ShouldBeDead(t *testing.T) {
 	t.Parallel()
@@ -110,11 +114,12 @@ func TestNextStateCells_WithZeroOrOneLiveNeighbors_ShouldBeDead(t *testing.T) {
 		{1, 1, 0},
 	}
 	wantState2 := [][]int{
+		{0, 1, 0},
 		{0, 0, 0},
-		{0, 0, 0},
-		{0, 0, 0},
+		{1, 1, 0},
 	}
 	gotState2 := board.NextState(initState2)
+
 	if !cmp.Equal(wantState2, gotState2) {
 		t.Errorf("state2 diff: %v", cmp.Diff(wantState2, gotState2))
 	}
